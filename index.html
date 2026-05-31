@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DevLingo — Tech Jargon Dictionary</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f7f6f3;
+    --surface: #ffffff;
+    --surface2: #f0efe9;
+    --border: rgba(0,0,0,0.08);
+    --border-strong: rgba(0,0,0,0.14);
+    --text-primary: #111110;
+    --text-secondary: #6b6a65;
+    --text-tertiary: #9b9a95;
+    --accent-bg: #111110;
+    --accent-text: #f7f6f3;
+    --tag-bg: #eeedea;
+    --tag-text: #4a4945;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    padding: 0 2rem;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .logo {
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .logo-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent-bg);
+  }
+
+  .logo-sub { color: var(--text-tertiary); font-weight: 300; }
+
+  .layout {
+    display: flex;
+    flex: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 2rem 1.5rem;
+    gap: 1.5rem;
+  }
+
+  .sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .sidebar-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    padding: 0 10px;
+    margin-bottom: 4px;
+  }
+
+  .recent-list { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+
+  .recent-item {
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 13.5px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    font-family: 'DM Mono', monospace;
+    font-weight: 300;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .recent-item:hover { background: var(--surface); color: var(--text-primary); }
+
+  .recent-empty {
+    padding: 8px 10px;
+    font-size: 13px;
+    color: var(--text-tertiary);
+    font-style: italic;
+  }
+
+  .sidebar-divider { height: 1px; background: var(--border); margin: 8px 0; }
+
+  .clear-btn {
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    border: none;
+    background: none;
+    text-align: left;
+    font-family: 'DM Sans', sans-serif;
+    width: 100%;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .clear-btn:hover { background: #fce8e8; color: #c0392b; }
+
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    min-width: 0;
+  }
+
+  .search-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .search-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--text-primary);
+    background: transparent;
+    min-width: 0;
+  }
+
+  .search-input::placeholder { color: var(--text-tertiary); }
+
+  .btn {
+    padding: 8px 18px;
+    border-radius: var(--radius-sm);
+    font-size: 13.5px;
+    font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .btn-primary { background: var(--accent-bg); color: var(--accent-text); border-color: var(--accent-bg); }
+  .btn-primary:hover { opacity: 0.85; }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-ghost { background: transparent; color: var(--text-secondary); border-color: var(--border-strong); }
+  .btn-ghost:hover { background: var(--surface2); color: var(--text-primary); }
+
+  .result-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.75rem;
+    display: none;
+    flex-direction: column;
+  }
+
+  .result-card.visible { display: flex; animation: fadeUp 0.3s ease; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .word-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .word-title {
+    font-size: 26px;
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .word-tag {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    padding: 3px 9px;
+    border-radius: 99px;
+  }
+
+  .section {
+    padding: 1.1rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section:last-child { border-bottom: none; padding-bottom: 0; }
+
+  .section-label {
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    margin-bottom: 0.55rem;
+  }
+
+  .section-text {
+    font-size: 14.5px;
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  .examples-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .example-item { display: flex; gap: 12px; align-items: flex-start; }
+
+  .example-badge {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .badge-tech { background: #e8f0fe; color: #2255c2; }
+  .badge-real { background: #e6f4ea; color: #1a7f37; }
+
+  .example-text { font-size: 14px; line-height: 1.65; font-weight: 300; }
+
+  .similar-words { display: flex; flex-wrap: wrap; gap: 7px; }
+
+  .similar-tag {
+    font-size: 13px;
+    font-family: 'DM Mono', monospace;
+    font-weight: 300;
+    padding: 5px 12px;
+    border-radius: 8px;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .similar-tag:hover { background: var(--accent-bg); color: var(--accent-text); }
+
+  .empty-state {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 3rem 2rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .empty-icon { font-size: 32px; margin-bottom: 4px; }
+  .empty-title { font-size: 15px; font-weight: 500; }
+  .empty-sub { font-size: 13.5px; color: var(--text-tertiary); font-weight: 300; line-height: 1.6; max-width: 320px; }
+
+  .empty-examples { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 8px; }
+
+  .empty-ex-tag {
+    font-size: 12.5px;
+    font-family: 'DM Mono', monospace;
+    font-weight: 300;
+    padding: 4px 12px;
+    border-radius: 7px;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .empty-ex-tag:hover { background: var(--accent-bg); color: var(--accent-text); }
+
+  .loading-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2.5rem 1.75rem;
+    display: none;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .loading-card.visible { display: flex; }
+
+  .skeleton {
+    border-radius: 6px;
+    background: linear-gradient(90deg, var(--surface2) 25%, #e8e7e0 50%, var(--surface2) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  .sk-title { height: 32px; width: 180px; }
+  .sk-line { height: 14px; }
+  .sk-line-short { height: 14px; width: 60%; }
+  .sk-label { height: 10px; width: 80px; margin-bottom: 4px; }
+  .sk-section { display: flex; flex-direction: column; gap: 8px; padding: 1rem 0; border-bottom: 1px solid var(--border); }
+
+  .error-msg {
+    font-size: 13.5px;
+    color: #c0392b;
+    padding: 10px 12px;
+    background: #fce8e8;
+    border-radius: var(--radius-sm);
+    display: none;
+  }
+
+  .error-msg.visible { display: block; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <span class="logo-dot"></span>
+    DevLingo
+    <span class="logo-sub">/ tech jargon dictionary</span>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-label">Recent searches</div>
+    <div class="recent-list" id="recentList">
+      <div class="recent-empty" id="recentEmpty">No searches yet</div>
+    </div>
+    <div class="sidebar-divider"></div>
+    <button class="clear-btn" id="clearBtn">Clear history</button>
+  </aside>
+
+  <main class="main">
+    <div class="search-card">
+      <input class="search-input" id="searchInput" type="text"
+        placeholder="Search a tech term — try 'fallback', 'API', 'mutex'..."
+        autocomplete="off" spellcheck="false" />
+      <button class="btn btn-ghost" id="clearInput">Clear</button>
+      <button class="btn btn-primary" id="searchBtn">Search</button>
+    </div>
+
+    <div class="error-msg" id="errorMsg"></div>
+
+    <div class="loading-card" id="loadingCard">
+      <div class="skeleton sk-title"></div>
+      <div class="sk-section">
+        <div class="skeleton sk-label"></div>
+        <div class="skeleton sk-line"></div>
+        <div class="skeleton sk-line-short"></div>
+      </div>
+      <div class="sk-section">
+        <div class="skeleton sk-label"></div>
+        <div class="skeleton sk-line"></div>
+        <div class="skeleton sk-line-short"></div>
+      </div>
+      <div class="sk-section">
+        <div class="skeleton sk-label"></div>
+        <div class="skeleton sk-line"></div>
+        <div class="skeleton sk-line"></div>
+      </div>
+    </div>
+
+    <div class="result-card" id="resultCard">
+      <div class="word-header">
+        <span class="word-title" id="wordTitle"></span>
+        <span class="word-tag">tech term</span>
+      </div>
+      <div class="section">
+        <div class="section-label">Meaning</div>
+        <div class="section-text" id="meaningText"></div>
+      </div>
+      <div class="section">
+        <div class="section-label">Origin of this word</div>
+        <div class="section-text" id="originText"></div>
+      </div>
+      <div class="section">
+        <div class="section-label">Examples</div>
+        <div class="examples-list" id="examplesList"></div>
+      </div>
+      <div class="section">
+        <div class="section-label">Similar kind of words</div>
+        <div class="similar-words" id="similarWords"></div>
+      </div>
+    </div>
+
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">⌨️</div>
+      <div class="empty-title">Search any tech term</div>
+      <div class="empty-sub">Type a programming or tech word and get its meaning, origin, examples, and related terms — instantly.</div>
+      <div class="empty-examples">
+        <span class="empty-ex-tag" onclick="quickSearch('API')">API</span>
+        <span class="empty-ex-tag" onclick="quickSearch('fallback')">fallback</span>
+        <span class="empty-ex-tag" onclick="quickSearch('mutex')">mutex</span>
+        <span class="empty-ex-tag" onclick="quickSearch('race condition')">race condition</span>
+        <span class="empty-ex-tag" onclick="quickSearch('idempotent')">idempotent</span>
+        <span class="empty-ex-tag" onclick="quickSearch('cache')">cache</span>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  let recentSearches = [];
+
+  const searchInput = document.getElementById('searchInput');
+  const searchBtn = document.getElementById('searchBtn');
+  const clearInputBtn = document.getElementById('clearInput');
+  const clearBtn = document.getElementById('clearBtn');
+  const recentList = document.getElementById('recentList');
+  const recentEmpty = document.getElementById('recentEmpty');
+  const resultCard = document.getElementById('resultCard');
+  const loadingCard = document.getElementById('loadingCard');
+  const emptyState = document.getElementById('emptyState');
+  const errorMsg = document.getElementById('errorMsg');
+
+  function showState(state) {
+    resultCard.classList.remove('visible');
+    loadingCard.classList.remove('visible');
+    emptyState.style.display = 'none';
+    errorMsg.classList.remove('visible');
+    if (state === 'result') resultCard.classList.add('visible');
+    if (state === 'loading') loadingCard.classList.add('visible');
+    if (state === 'empty') emptyState.style.display = 'flex';
+    if (state === 'error') { errorMsg.classList.add('visible'); emptyState.style.display = 'none'; }
+  }
+
+  function renderRecent() {
+    recentList.innerHTML = '';
+    if (recentSearches.length === 0) {
+      recentList.appendChild(recentEmpty);
+      return;
+    }
+    recentSearches.slice().reverse().forEach(word => {
+      const el = document.createElement('div');
+      el.className = 'recent-item';
+      el.textContent = word;
+      el.onclick = () => quickSearch(word);
+      recentList.appendChild(el);
+    });
+  }
+
+  function addRecent(word) {
+    recentSearches = recentSearches.filter(w => w.toLowerCase() !== word.toLowerCase());
+    recentSearches.push(word);
+    if (recentSearches.length > 15) recentSearches = recentSearches.slice(-15);
+    renderRecent();
+  }
+
+  clearBtn.onclick = () => { recentSearches = []; renderRecent(); };
+
+  clearInputBtn.onclick = () => {
+    searchInput.value = '';
+    searchInput.focus();
+    showState('empty');
+  };
+
+  searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+  searchBtn.onclick = doSearch;
+
+  function quickSearch(word) {
+    searchInput.value = word;
+    doSearch();
+  }
+
+  async function doSearch() {
+    const word = searchInput.value.trim();
+    if (!word) return;
+
+    showState('loading');
+    searchBtn.disabled = true;
+    addRecent(word);
+
+    try {
+      const response = await fetch('/api/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ word })
+      });
+
+      if (!response.ok) throw new Error('Server error ' + response.status);
+
+      const result = await response.json();
+      renderResult(result);
+      showState('result');
+    } catch (err) {
+      errorMsg.textContent = 'Something went wrong. Please try again.';
+      showState('error');
+    } finally {
+      searchBtn.disabled = false;
+    }
+  }
+
+  function renderResult(r) {
+    document.getElementById('wordTitle').textContent = r.word;
+    document.getElementById('meaningText').textContent = r.meaning;
+    document.getElementById('originText').textContent = r.origin;
+
+    document.getElementById('examplesList').innerHTML = `
+      <div class="example-item">
+        <span class="example-badge badge-tech">Tech</span>
+        <span class="example-text">${r.techExample}</span>
+      </div>
+      <div class="example-item">
+        <span class="example-badge badge-real">Real life</span>
+        <span class="example-text">${r.realExample}</span>
+      </div>
+    `;
+
+    document.getElementById('similarWords').innerHTML =
+      (r.similarWords || []).map(w =>
+        `<span class="similar-tag" onclick="quickSearch('${w}')">${w}</span>`
+      ).join('');
+  }
+
+  showState('empty');
+  renderRecent();
+</script>
+</body>
+</html>
