@@ -1,3 +1,9 @@
+export const config = {
+  api: {
+    bodyParser: true,
+  },
+};
+
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
@@ -7,19 +13,18 @@ export default async function handler(req, res) {
   if (req.method !== "POST")
     return res.status(405).json({ error: "Method not allowed" });
 
-  const { word } = req.body;
-  if (!word) return res.status(400).json({ error: "Word is required" });
+  let word;
+  try {
+    word = req.body?.word || JSON.parse(req.body)?.word;
+  } catch (e) {
+    word = req.body?.word;
+  }
 
-  const prompt = `You are DevLingo, a tech jargon dictionary for programmers.
-
-The user searched for: "${word}"
-
-You MUST respond with ONLY a raw JSON object. No markdown. No backticks. No explanation. Just the JSON.
-
-{"word":"${word}","meaning":"2-3 sentences explaining this term in tech/programming world.","origin":"2-3 sentences about where this word came from and how developers adopted it.","techExample":"1-2 sentences of a real technical coding example.","realExample":"1-2 sentences of a real life non-technical analogy.","similarWords":["term1","term2","term3","term4"]}`;
+  if (!word)
+    return res.status(400).json({ error: "Word is required", body: req.body });
 
   try {
-    const response = await fetch(
+    const groqRes = await fetch(
       "https://api.groq.com/openai/v1/chat/completions",
       {
         method: "POST",
@@ -29,36 +34,42 @@ You MUST respond with ONLY a raw JSON object. No markdown. No backticks. No expl
         },
         body: JSON.stringify({
           model: "llama3-8b-8192",
-          max_tokens: 1000,
+          max_tokens: 800,
           temperature: 0.3,
           messages: [
             {
               role: "system",
               content:
-                "You are a JSON API. You only respond with raw valid JSON objects. Never use markdown or code blocks.",
+                "You are a JSON API. Respond ONLY with a raw JSON object. No markdown, no backticks, no explanation.",
             },
-            { role: "user", content: prompt },
+            {
+              role: "user",
+              content: `Give me tech dictionary info for the word "${word}". Respond with this exact JSON structure:
+{"word":"${word}","meaning":"explanation of this tech term in 2-3 sentences","origin":"where this word came from and how developers adopted it in 2-3 sentences","techExample":"one technical coding example sentence","realExample":"one real life non-technical analogy sentence","similarWords":["related1","related2","related3","related4"]}`,
+            },
           ],
         }),
       },
     );
 
-    const data = await response.json();
+    const data = await groqRes.json();
 
-    if (!response.ok) {
-      return res.status(500).json({ error: "Groq error", details: data });
+    if (!groqRes.ok) {
+      return res.status(500).json({ error: "Groq API failed", details: data });
     }
 
     const text = data.choices[0].message.content.trim();
+    const match = text.match(/\{[\s\S]*\}/);
 
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      return res.status(500).json({ error: "No JSON found", raw: text });
+    if (!match) {
+      return res
+        .status(500)
+        .json({ error: "Could not parse response", raw: text });
     }
 
-    const result = JSON.parse(jsonMatch[0]);
+    const result = JSON.parse(match[0]);
     return res.status(200).json(result);
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message, stack: err.stack });
   }
 }
